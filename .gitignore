@@ -1,0 +1,4 @@
+.nextflow*
+work/
+nf_public/
+env/triesus_benchmark.sif
