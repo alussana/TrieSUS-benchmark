@@ -4,23 +4,26 @@ A readily reproducible workflow to benchmark the algorithm [TrieSUS](https://git
 
 Both the code and the environment are self-contained in this repository, according to the portable workflow model illustrated in this [project template](https://github.com/alussana/nf-project-template).
 
-To run the analysis, make sure that [Nextflow](https://www.nextflow.io), [Docker](https://www.docker.com), and [Singularity](https://apptainer.org) are installed. Then, generate the required Singularity image with
+Requires [Nextflow](https://www.nextflow.io), [Docker](https://www.docker.com) and [Apptainer](https://apptainer.org).
 
-```
-docker build -t triesus_benchmark - < env/triesus_benchmark.dockerfile
-singularity build env/triesus_benchmark.sif docker-daemon://triesus_benchmark:latest
+Generate the required Apptainer image:
+
+```bash
+docker build -t triesus_benchmark - < env/Dockerfile
+docker save -o env/triesus_benchmark.tar.gz triesus_benchmark
+apptainer build env/triesus_benchmark.sif docker-archive://env/triesus_benchmark.tar.gz
 ```
 
-Finally, simply run:
+Run the workflow:
 
-```
-nextflow run main.nf
+```bash
+nextflow run main.nf -resume
 ```
 
 The results and figures will be saved in `nf_public/`.
 
 <p align="center">
   <br>
-  <img width="900" height="" src="misc/assets/benchmark.svg">
+  <img width="1024" height="" src="assets/triesus_benchmark.png">
   <br>
 </p>

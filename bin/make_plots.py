@@ -15,63 +15,131 @@ rcParams["ytick.direction"] = "in"
 
 rcParams.update({"figure.autolayout": True})
 
-plt.rcParams["figure.figsize"] = (5,4)
+plt.rcParams["figure.figsize"] = (2.5, 2.5)
 
-if __name__ == '__main__':
-    df = pd.read_csv('records.tsv', header=None, sep='\t')
-    df.columns = [
-        'Method',
-        'Sets',
-        'Items',
-        'Universe',
-        'Function calls',
-        'Seconds'
-    ]
-    df['Input size parameter'] = df['Sets'].astype(str)
-    df = df.sort_values(by='Sets') 
-    
+
+# ====
+plt.rcParams["axes.titlesize"] = 7
+plt.rcParams["axes.labelsize"] = 6
+plt.rcParams["xtick.labelsize"] = 6
+plt.rcParams["ytick.labelsize"] = 6
+plt.rcParams["legend.fontsize"] = 6
+plt.rcParams["figure.titlesize"] = 8
+plt.rcParams["font.size"] = 6
+
+red_shade = "#d62728"
+grey_shade = "#7f7f7f"
+
+custom_palette = sns.color_palette(["grey", "red"])
+
+blended_palette = sns.blend_palette([custom_palette[0], custom_palette[1]], n_colors=4)
+
+sns.set_palette(custom_palette)
+# ====
+
+
+if __name__ == "__main__":
+    color_map = {
+        "TrieSUS (single solution)": "red",
+        "TrieSUS (all solutions)": "darkred",
+        "Brute force (single solution)": "grey",
+        "Brute force (all solutions)": "darkgrey",
+    }
+
+    df = pd.read_csv("records.tsv", header=None, sep="\t")
+    df.columns = ["Method", "Sets", "Items", "Universe", "Function calls", "Seconds"]
+    df["Method"] = pd.Categorical(
+        df["Method"],
+        categories=[
+            "TrieSUS (single solution)",
+            "TrieSUS (all solutions)",
+            "Brute force (single solution)",
+            "Brute force (all solutions)",
+        ],
+        ordered=True,
+    )
+
+    df["Input size parameter"] = df["Sets"].astype(str)
+    df = df.sort_values(by="Sets")
+
     plt.clf()
     g = sns.lineplot(
         data=df,
-        x='Input size parameter',
-        y='Seconds',
-        hue='Method',
+        x="Input size parameter",
+        y="Seconds",
+        hue="Method",
+        palette=color_map,
+        hue_order=[
+            "Brute force (all solutions)",
+            "Brute force (single solution)",
+            "TrieSUS (all solutions)",
+            "TrieSUS (single solution)",
+        ],
     )
-    g.set(yscale='log')
-    plt.legend(frameon=False)
+    g.set(yscale="log")
+    handles, labels = plt.gca().get_legend_handles_labels()
+    plt.legend(handles[::-1], labels[::-1], frameon=False)
     sns.despine()
-    plt.savefig('plots/seconds_log.svg')
-    
+    plt.tight_layout()
+    plt.savefig("plots/seconds_log.pdf")
+
     plt.clf()
     g = sns.lineplot(
         data=df,
-        x='Input size parameter',
-        y='Seconds',
-        hue='Method',
+        x="Input size parameter",
+        y="Seconds",
+        hue="Method",
+        palette=color_map,
+        hue_order=[
+            "Brute force (all solutions)",
+            "Brute force (single solution)",
+            "TrieSUS (all solutions)",
+            "TrieSUS (single solution)",
+        ],
     )
-    plt.legend(frameon=False)
+    handles, labels = plt.gca().get_legend_handles_labels()
+    plt.legend(handles[::-1], labels[::-1], frameon=False)
     sns.despine()
-    plt.savefig('plots/seconds.svg')
-    
+    plt.tight_layout()
+    plt.savefig("plots/seconds.pdf")
+
     plt.clf()
     g = sns.lineplot(
         data=df,
-        x='Input size parameter',
-        y='Function calls',
-        hue='Method',
+        x="Input size parameter",
+        y="Function calls",
+        hue="Method",
+        palette=color_map,
+        hue_order=[
+            "Brute force (all solutions)",
+            "Brute force (single solution)",
+            "TrieSUS (all solutions)",
+            "TrieSUS (single solution)",
+        ],
     )
-    g.set(yscale='log')
-    plt.legend(frameon=False)
+    g.set(yscale="log")
+    handles, labels = plt.gca().get_legend_handles_labels()
+    plt.legend(handles[::-1], labels[::-1], frameon=False)
     sns.despine()
-    plt.savefig('plots/function_calls_log.svg')
-    
+    plt.tight_layout()
+    plt.savefig("plots/function_calls_log.pdf")
+
     plt.clf()
     g = sns.lineplot(
         data=df,
-        x='Input size parameter',
-        y='Function calls',
-        hue='Method',
+        x="Input size parameter",
+        y="Function calls",
+        hue="Method",
+        palette=color_map,
+        hue_order=[
+            "Brute force (all solutions)",
+            "Brute force (single solution)",
+            "TrieSUS (all solutions)",
+            "TrieSUS (single solution)",
+        ],
     )
-    plt.legend(frameon=False)
+    handles, labels = plt.gca().get_legend_handles_labels()
+    plt.legend(handles[::-1], labels[::-1], frameon=False)
     sns.despine()
-    plt.savefig('plots/function_calls.svg')
+    plt.tight_layout()
+    plt.savefig("plots/function_calls.pdf")

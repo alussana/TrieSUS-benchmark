@@ -3,6 +3,6 @@
 # Alessandro Lussana <alussana@ebi.ac.uk>
 
 from triesus.run_triesus import *
-        
-if __name__ == '__main__':
-    run_triesus('input/sets.tsv')
+
+if __name__ == "__main__":
+    run_triesus("input/sets.tsv")

@@ -36,6 +36,7 @@ process make_random_sets {
 
 }
 
+
 process run_triesus {
 
     publishDir "${out_dir}", pattern: "triesus/*", mode: 'copy'
@@ -63,6 +64,7 @@ process run_triesus {
 
 }
 
+
 process run_naive_sus {
 
     publishDir "${out_dir}", pattern: "naive_sus/*", mode: 'copy'
@@ -88,6 +90,7 @@ process run_naive_sus {
     """
 
 }
+
 
 process profile_triesus {
 
@@ -138,11 +141,68 @@ process profile_triesus {
         | tr -d ' ' \
     )
 
-    echo -e "TrieSUS\\t${n_sets}\\t${n_items}\\t${n_universe}\\t\$fun_calls\\t\$time" \
+    echo -e "TrieSUS (single solution)\\t${n_sets}\\t${n_items}\\t${n_universe}\\t\$fun_calls\\t\$time" \
         > profiling_triesus/${n_sets}_${n_items}_${n_universe}_${rep}_record.tsv
     """
 
 }
+
+
+process profile_triesus_extended {
+
+    publishDir "${out_dir}", pattern: "profiling_triesus_extended/*", mode: 'copy'
+
+    input:
+        tuple val(n_sets),
+              val(n_items),
+              val(n_universe),
+              file('input/sets.tsv'),
+              val(rep)
+
+    output:
+        tuple val(n_sets),
+              val(n_items),
+              val(n_universe),
+              file("profiling_triesus_extended/${n_sets}_${n_items}_${n_universe}_${rep}.tsv"),
+              emit: pstat_table
+        path "profiling_triesus_extended/${n_sets}_${n_items}_${n_universe}_${rep}_record.tsv",
+             emit: record             
+
+    script:
+    """
+    mkdir -p profiling_triesus_extended
+
+    python \
+        -m cProfile \
+        -o profiling_triesus_extended/${n_sets}_${n_items}_${n_universe}_${rep}_cprofile_results \
+        ${projectDir}/bin/test_triesus.py
+
+    echo 'stats' \
+        | python3 \
+            -m pstats \
+            profiling_triesus_extended/${n_sets}_${n_items}_${n_universe}_${rep}_cprofile_results \
+        > profiling_triesus_extended/${n_sets}_${n_items}_${n_universe}_${rep}.tsv
+
+    fun_calls=\$( \
+        cat profiling_triesus_extended/${n_sets}_${n_items}_${n_universe}_${rep}.tsv \
+        | grep "function calls" \
+        | sed -r 's/([0-9]+) function calls .*/\\1/' \
+        | tr -d ' ' \
+    )
+
+    time=\$( \
+        cat profiling_triesus_extended/${n_sets}_${n_items}_${n_universe}_${rep}.tsv \
+        | grep "function calls" \
+        | sed -r 's/^.+\\ in ([0-9.]+) seconds/\\1/' \
+        | tr -d ' ' \
+    )
+
+    echo -e "TrieSUS (all solutions)\\t${n_sets}\\t${n_items}\\t${n_universe}\\t\$fun_calls\\t\$time" \
+        > profiling_triesus_extended/${n_sets}_${n_items}_${n_universe}_${rep}_record.tsv
+    """
+
+}
+
 
 process profile_naive_sus {
 
@@ -193,21 +253,78 @@ process profile_naive_sus {
         | tr -d ' ' \
     )
 
-    echo -e "Brute force\\t${n_sets}\\t${n_items}\\t${n_universe}\\t\$fun_calls\\t\$time" \
+    echo -e "Brute force (single solution)\\t${n_sets}\\t${n_items}\\t${n_universe}\\t\$fun_calls\\t\$time" \
         > profiling_naive_sus/${n_sets}_${n_items}_${n_universe}_${rep}_record.tsv
     """
 
 }
 
+
+process profile_naive_sus_extended {
+
+    publishDir "${out_dir}", pattern: "profiling_naive_sus_extended/*", mode: 'copy'
+
+    input:
+        tuple val(n_sets),
+              val(n_items),
+              val(n_universe),
+              file('input/sets.tsv'),
+              val(rep)
+
+    output:
+        tuple val(n_sets),
+              val(n_items),
+              val(n_universe),
+              file("profiling_naive_sus_extended/${n_sets}_${n_items}_${n_universe}_${rep}.tsv"),
+              emit: pstat_table
+        path "profiling_naive_sus_extended/${n_sets}_${n_items}_${n_universe}_${rep}_record.tsv",
+             emit: record 
+
+    script:
+    """
+    mkdir -p profiling_naive_sus_extended
+
+    python \
+        -m cProfile \
+        -o profiling_naive_sus_extended/${n_sets}_${n_items}_${n_universe}_${rep}_cprofile_results \
+        ${projectDir}/bin/test_naive_sus.py
+
+    echo 'stats' \
+        | python3 \
+            -m pstats \
+            profiling_naive_sus_extended/${n_sets}_${n_items}_${n_universe}_${rep}_cprofile_results \
+        > profiling_naive_sus_extended/${n_sets}_${n_items}_${n_universe}_${rep}.tsv
+
+    fun_calls=\$( \
+        cat profiling_naive_sus_extended/${n_sets}_${n_items}_${n_universe}_${rep}.tsv \
+        | grep "function calls" \
+        | sed -r 's/([0-9]+) function calls .*/\\1/' \
+        | tr -d ' ' \
+    )
+
+    time=\$( \
+        cat profiling_naive_sus_extended/${n_sets}_${n_items}_${n_universe}_${rep}.tsv \
+        | grep "function calls" \
+        | sed -r 's/^.+\\ in ([0-9.]+) seconds/\\1/' \
+        | tr -d ' ' \
+    )
+
+    echo -e "Brute force (all solutions)\\t${n_sets}\\t${n_items}\\t${n_universe}\\t\$fun_calls\\t\$time" \
+        > profiling_naive_sus_extended/${n_sets}_${n_items}_${n_universe}_${rep}_record.tsv
+    """
+
+}
+
+
 process make_plots {
 
-    publishDir "${out_dir}", pattern: "plots/*", mode: 'copy'
+    publishDir "${out_dir}", pattern: "plots/*.pdf", mode: 'copy'
 
     input:
         path 'input/*tsv'
 
     output:
-        path 'plots/*svg'
+        path 'plots/*.pdf'
 
     script:
     """
@@ -219,6 +336,7 @@ process make_plots {
     """
 
 }
+
 
 workflow {
 
@@ -245,14 +363,20 @@ workflow {
         0,1,2,3,4,5,6,7,8,9
     )
 
-    profile_input = random_sets.combine(replicates)
+    profile_input = random_sets.combine( replicates )
 
     profiling_triesus = profile_triesus( profile_input )
 
+    profile_triesus_extended = profile_triesus_extended( profile_input )
+
     profiling_naive_sus = profile_naive_sus( profile_input )
 
+    profiling_naive_sus_extended = profile_naive_sus_extended( profile_input )
+
     records = profiling_triesus.record
-                .concat(profiling_naive_sus.record)
+                .concat( profiling_naive_sus.record )
+                .concat( profile_triesus_extended.record )
+                .concat( profiling_naive_sus_extended.record )
                 .collect()
 
     make_plots(records)
