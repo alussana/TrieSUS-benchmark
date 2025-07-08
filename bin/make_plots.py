@@ -42,8 +42,8 @@ if __name__ == "__main__":
     color_map = {
         "TrieSUS (single solution)": "red",
         "TrieSUS (all solutions)": "darkred",
-        "Brute force (single solution)": "grey",
-        "Brute force (all solutions)": "darkgrey",
+        "Brute force (single solution)": "darkgrey",
+        "Brute force (all solutions)": "grey",
     }
 
     df = pd.read_csv("records.tsv", header=None, sep="\t")

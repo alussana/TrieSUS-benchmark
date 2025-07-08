@@ -27,3 +27,9 @@ The results and figures will be saved in `nf_public/`.
   <img width="1024" height="" src="assets/triesus_benchmark.png">
   <br>
 </p>
+
+<p align="center">
+  <br>
+  <img width="1024" height="" src="assets/triesus_benchmark_log.png">
+  <br>
+</p>
